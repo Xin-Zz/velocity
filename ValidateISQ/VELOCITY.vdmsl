@@ -46,18 +46,6 @@ exports
     struct Velocity;
 
     struct BISVelocity;
-        
-		struct CGS_MeasurementSystem;
-		struct Centimetre;
-
-    struct MHC_MeasurementSystem;
-		struct Hour;
-
-    struct MDC_MeasurementSystem;
-		struct Day;
-		
-		struct MWC_MeasurementSystem;
-		struct Week;
 			
   functions
     dim_comp: DimensionlessVector * DimensionlessVector -> DimensionlessVector;
@@ -188,18 +176,6 @@ exports
 		BIS_YARD	     : Yard    ;
     BIS_VELOCITY	 : BISVelocity;
 
-    CGS              : ConversionSchema;
-		CENTIMETRE       : Centimetre;
-
-    MHC              : ConversionSchema;
-		MHOUR            : Hour 		; 
-
-		MDC				 : ConversionSchema;
-		MDAY 			 : Day;
-	                     
-		MWC			     : ConversionSchema;
-		MWEEK		     : Week;
-	
 		HOURS_PER_DAY    : nat1;
 		DAYS_PER_WEEK    : nat1;
 		WEEKS_PER_YEAR   : nat1;
@@ -894,27 +870,11 @@ functions
 --@section Other measurement system of interest setup
 ------------------------------------------------------------------------------------
 values 
-	CGS_UNIT: UnitSystem = "CGS";
-	MHC_UNIT: UnitSystem = "MHC";
-
-
 	WEEKS_PER_YEAR : nat1 = 52;
 	MONTHS_PER_YEAR: nat1 = 12;
 	DAYS_PER_YEAR  : nat1 = 365;
 
 types
-	CGS_MeasurementSystem = MeasurementSystem
-	inv ms == ms.schema = CGS and ms.unit = CGS_UNIT;
-	
-	Centimetre = CGS_MeasurementSystem
-	inv ms == ms.quantity.dim = DLENGTH;
-	
-	MHC_MeasurementSystem = MeasurementSystem
-	inv ms == ms.schema = MHC and ms.unit = MHC_UNIT;
-	
-	Hour = MHC_MeasurementSystem
-	inv ms == ms.quantity.dim = DTIME;
-		
 	WhichMonth = nat1
 	inv wm == wm <= MONTHS_PER_YEAR;
 	
@@ -922,11 +882,6 @@ types
 	inv hmd == hmd in set {28,...,31};
     
 values 
-	CENTIMETRE: Centimetre = mk_MeasurementSystem(UNIT_LENGTH, CGS, CGS_UNIT);
-
-	MHOUR   : Hour 			= mk_MeasurementSystem(UNIT_TIME, MHC, MHC_UNIT);--hour(MHC); --1hr
-	--MMHG  : IntQuantity   = UNIT_????; in KILOGRAM / (METER * SECOND**2)
-
 	DAYS_PER_MONTH : map WhichMonth to HowManyDays = {1|->31, 2|->28, 3|->31, 4|->30, 5|->31, 6|->30,
                                  			            7|->31, 8|->31, 9|->30, 10|->31, 11|->30, 12|->31};
 
@@ -1058,7 +1013,7 @@ functions
 			 };
 			 
 	CONVERSION_SCHEMAS : () -> set1 of ConversionSchema
-	CONVERSION_SCHEMAS() == {SI, BIS, MHC, MDC, MWC};
+	CONVERSION_SCHEMAS() == {SI, BIS};
 	
 	DIMENSION_VECTORS  : () -> set1 of DimensionVector  
 	DIMENSION_VECTORS() == 
@@ -1198,43 +1153,7 @@ traces
 					rhs: Magnitude = mag(scaleMS(100000 / 9143993, BIS_YARD))
 				in   
 					refl_bool(approx_eq(lhs, rhs, ORDER_MAGNITUDE));
-                        
-------------------------------------------------------------------------------------
---@subsection CGS
-------------------------------------------------------------------------------------
-	--@doc 1KM in SI = 100000 centimetres in CGS
-	CGS_1: let 
-					 lhs: Magnitude = mag(ms_conv(/*SI, CGS, kilo(METER)*/kilo(METER), CGS)),
-					 rhs: Magnitude = mag(scaleMS(100000, CENTIMETRE))
-				 in
-					 refl_bool((lhs = 100000) and (lhs = rhs));
-
-	--@doc 100 cm in CGS = 1 metre in SI
-	CGS_2: refl_bool(mag(metrify(scaleMS(100, CENTIMETRE))) = mag(METER));
-
-------------------------------------------------------------------------------------
---@subsection MHC, MDC, MWC
-------------------------------------------------------------------------------------
-	--@doc (in hours) week / avg_month = week / year * avg_month / year
-	MHC_1: let
-					 lhs: MeasurementSystem = hW2M(),
-					 rhs: MeasurementSystem = ms_div(ms_div(hWEEK(), hYEAR()), ms_div(hAVG_MONTH(), hYEAR()))
-					in
-						refl_bool(lhs = rhs);
-
-	--@doc 4 weeks = 0.9438202247191011 avg_month
-	MWC_1: let
-					 lhs: MeasurementSystem = weeks2months_wks(4),
-					 rhs: MeasurementSystem = scaleMS(0.9438202247191011, wAVG_MONTH())
-					in
-						refl_bool(lhs = rhs);
-	
-	--@doc 12 weeks = 84 days
-	MWC_2: let
-					 lhs: MeasurementSystem = scaleMS(12, MWEEK),
-					 rhs: MeasurementSystem = scaleMS(84, MDAY)
-					in
-						refl_bool(mag(ms_conv(lhs, MDC)) = mag(rhs)); 				
+     
 ------------------------------------------------------------------------------------
 --@subsection Other; total 2132 tests
 ------------------------------------------------------------------------------------
@@ -1246,4 +1165,4 @@ traces
 	T2: refl_bool(metrify(BIS_YARD).mag = 0.9143993);
 
 
-end velocity1
+end VELOCITY
