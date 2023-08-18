@@ -39,13 +39,38 @@ exports
 		struct Prefix;	
 
 		struct Second;
+		
     struct SI_MeasurementSystem;
 		struct Meter;
+		struct Kilogram;
+		struct Kelvin;
 
     struct Frequency;
     struct Velocity;
 
-    struct BISVelocity;
+		struct BIS_MeasurementSystem;
+		struct Yard;
+		struct Pound;
+		struct Rankine;
+		struct BISVelocity;
+
+		struct CGS_MeasurementSystem;
+		struct Centimetre;
+		struct Gram;
+		
+		struct MHC_MeasurementSystem;
+		struct Milligram;
+		struct Hour;
+		struct Celcius;
+
+		struct WhichMonth;
+		struct HowManyDays;
+	
+		struct MDC_MeasurementSystem;
+		struct Day;
+		
+		struct MWC_MeasurementSystem;
+		struct Week;
 			
   functions
     dim_comp: DimensionlessVector * DimensionlessVector -> DimensionlessVector;
@@ -111,17 +136,24 @@ exports
 		SI_INCH             : () -> Meter;
 		SI_MILE             : () -> Meter;
 		SI_NAUTICAL_MILE    : () -> Meter;
-	
+		
+		SI_TONNE            : () -> Kilogram;	
+		SI_POUND            : () -> Kilogram;
+		SI_OUNCE            : () -> Kilogram;
+		SI_STONE            : () -> Kilogram;
+		
 		SI_KNOT             : () -> Velocity;
 		SI_MPH              : () -> Velocity;
 		SI_MPS              : () -> Velocity;
 		SI_KPH              : () -> Velocity;
+		SI_DEGREES_FARENHEIT: Magnitude -> Kelvin;
 
     imperialise: MeasurementSystem -> Quantity;
 		BIS_FOOT         : () -> Yard;
 		BIS_INCH         : () -> Yard;
 		BIS_MILE         : () -> Yard;
 	
+		BIS_OUNCE        : () -> Pound;
 		BIS_MILE_PER_HOUR: () -> BISVelocity;
 	
 		hDAY      : () -> Hour;
@@ -151,7 +183,9 @@ exports
   	DIMENSIONS 	     : set1 of Dimension;
 		ZERO_DV          : DimensionlessVector;
 		DLENGTH          : SingleDimension;
+		DMASS            : SingleDimension;
 		DTIME            : SingleDimension;
+		DTEMP            : SingleDimension;
 			                
 		DFREQUENCY       : DimensionVector; 
 		DVELOCITY        : DimensionVector; 
@@ -160,22 +194,45 @@ exports
 		BIS_DIM_VIEW	 : DimensionView;
 			                 
 		CONV_ID          : ConversionSchema;
+		
 		UNIT_LENGTH      : IntQuantity; 
+		UNIT_MASS        : IntQuantity; 
 		UNIT_TIME        : IntQuantity; 
+		UNIT_TEMP        : IntQuantity; 
 
     UNIT_FREQUENCY   : Quantity;
 		UNIT_VELOCITY    : Quantity;
 	
     SI  	         : ConversionSchema;   
 		METER            : Meter   ;
+		KILOGRAM         : Kilogram;
 		SECOND	         : Second  ;
+		KELVIN           : Kelvin  ;
 	  SI_FREQUENCY     : Frequency   ;
 		SI_VELOCITY      : Velocity    ;
 
 		BIS 	         : ConversionSchema;
 		BIS_YARD	     : Yard    ;
+		BIS_POUND        : Pound   ;
     BIS_VELOCITY	 : BISVelocity;
+		BIS_RANKINE      : Rankine ;
 
+    CGS              : ConversionSchema;
+		CENTIMETRE       : Centimetre;
+		GRAM             : Gram			;
+
+    MHC              : ConversionSchema;
+		MGRAM		     : Milligram;
+		MHOUR            : Hour 		; 
+		MCELCIUS         : Celcius ;	
+
+		
+		MDC				 : ConversionSchema;
+		MDAY 			 : Day;
+	                     
+		MWC			     : ConversionSchema;
+		MWEEK		     : Week;
+	
 		HOURS_PER_DAY    : nat1;
 		DAYS_PER_WEEK    : nat1;
 		WEEKS_PER_YEAR   : nat1;
@@ -197,15 +254,15 @@ types
 ------------------------------------------------------------------------------------
 
 	--@doc SI base units, ordered according to SI's listing; ordered them for pretty printing only
-	Dimension = <Length> | <Time>
+	Dimension = <Length> | <Mass> | <Time> | <Temperature>
 	ord d1 < d2 == 
 		let 
-			value = { <Length> |-> 1, <Time> |-> 2
+			value = { <Length> |-> 1, <Mass> |-> 2, <Time> |-> 3,  <Temperature> |-> 4
 					    }
 		  in value(d1) < value(d2);
     
 values
-	DIMENSIONS: set1 of Dimension = {<Length>, <Time>};
+	DIMENSIONS: set1 of Dimension = {<Length>, <Mass>, <Time>, <Temperature>};
 
 types
   --@doc SI dimension compositions: two operators, times (counts quantity) and inverse (counts negative quantity)
@@ -383,10 +440,10 @@ types
 values 
 	--@doc specific dimension view for each measurement system
 	SI_DIM_VIEW: DimensionView = 
-		{<Length> |-> "m", <Time> |-> "s" };
+		{<Length> |-> "m", <Mass> |-> "kg", <Time> |-> "s" , <Temperature> |-> "K"};
 
 	BIS_DIM_VIEW: DimensionView = SI_DIM_VIEW ++ 
-		{<Length> |-> "yard" };
+		{<Length> |-> "yard", <Mass> |-> "pound", <Temperature> |-> "rankine" };
 
 functions
 
@@ -528,7 +585,9 @@ functions
 values
 	--@doc basic dimension vectors
 	DLENGTH   : SingleDimension = ZERO_DV ++ { <Length>      |-> 1 };
+	DMASS     : SingleDimension = ZERO_DV ++ { <Mass>        |-> 1 };
 	DTIME     : SingleDimension = ZERO_DV ++ { <Time>        |-> 1 };
+	DTEMP     : SingleDimension = ZERO_DV ++ { <Temperature> |-> 1 };
 
 	--@doc common dimension units
 	DFREQUENCY   : DimensionVector = dim_inv(DTIME);                                          --T**-1
@@ -543,7 +602,9 @@ values
 
 	--@doc single unit of quantity for each base dimension  
 	UNIT_LENGTH   : IntQuantity   = mk_Quantity(1, DLENGTH);
+	UNIT_MASS     : IntQuantity   = mk_Quantity(1, DMASS);
 	UNIT_TIME     : IntQuantity   = mk_Quantity(1, DTIME);
+	UNIT_TEMP     : IntQuantity   = mk_Quantity(1, DTEMP);
 
 	--@doc common SI prefixes
 	PREFIX_DECA   : MagnitudeN0 = (10**1);
@@ -584,9 +645,15 @@ types
 	Meter = SI_MeasurementSystem
 	inv ms == ms.quantity.dim = DLENGTH;
 
+	Kilogram = SI_MeasurementSystem
+	inv ms == ms.quantity.dim = DMASS;
+
 	--@doc second is common between different conversion schemas, so only fix the dimension, not conversion schema
 	Second = MeasurementSystem
 	inv ms == ms.quantity.dim = DTIME;
+	
+	Kelvin = SI_MeasurementSystem
+	inv ms == ms.quantity.dim = DTEMP;
 	
 	Frequency = SI_MeasurementSystem
 	inv ms == ms.quantity.dim = DFREQUENCY;
@@ -779,7 +846,9 @@ functions
 ------------------------------------------------------------------------------------
 values
 	METER   : Meter    = mk_MeasurementSystem(UNIT_LENGTH   , SI, SI_UNIT);
+	KILOGRAM: Kilogram = mk_MeasurementSystem(UNIT_MASS     , SI, SI_UNIT);
 	SECOND	: Second   = mk_MeasurementSystem(UNIT_TIME     , SI, SI_UNIT); 
+	KELVIN  : Kelvin   = mk_MeasurementSystem(UNIT_TEMP     , SI, SI_UNIT); 
         
 	SI_FREQUENCY   : Frequency    = mk_MeasurementSystem(UNIT_FREQUENCY         , SI, SI_UNIT);
 	SI_VELOCITY    : Velocity     = mk_MeasurementSystem(UNIT_VELOCITY          , SI, SI_UNIT);
@@ -791,7 +860,10 @@ functions
 	metrify(ms) == ms_conv(ms, SI).quantity;
 	
 	SI_ASTRONOMICAL: () -> Meter
-	SI_ASTRONOMICAL() == scaleMS(149597870700, METER);
+	SI_ASTRONOMICAL() == scaleMS(149597870700, METER);	
+	
+	SI_TONNE: () -> Kilogram
+	SI_TONNE() == scaleMS(mag(kilo(1)), KILOGRAM);
         
 ------------------------------------------------------------------------------------
 --@section SI common imperial conversions
@@ -811,6 +883,15 @@ functions
 	
 	SI_NAUTICAL_MILE: () -> Meter
 	SI_NAUTICAL_MILE() == scaleMS(1852, METER);
+	
+	SI_POUND: () -> Kilogram
+	SI_POUND() == scaleMS(0.45359237, KILOGRAM);
+	
+	SI_OUNCE: () -> Kilogram
+	SI_OUNCE() == scaleMS(1/16, SI_POUND());
+	
+	SI_STONE: () -> Kilogram
+	SI_STONE() == scaleMS(14, SI_POUND());
 
 	SI_KNOT: () -> Velocity
 	SI_KNOT() == ms_div(SI_NAUTICAL_MILE(), hour(SI, SI_UNIT));
@@ -824,6 +905,9 @@ functions
 
 	SI_KPH: () -> Velocity
 	SI_KPH() == ms_div(kilo(METER), hour(SI, SI_UNIT));
+	
+	SI_DEGREES_FARENHEIT: Magnitude -> Kelvin
+	SI_DEGREES_FARENHEIT(x) == scaleMS((x + 459.67) * 5/9, KELVIN);
 					 
 ------------------------------------------------------------------------------------
 --@section British Imperial measurement system setup and common conversions
@@ -832,7 +916,7 @@ values
 	BIS_UNIT   : UnitSystem = "BIS";
 	--@doc British Imperial System; choose Rankine instead of Farenheit for offset simplicity
 	BIS: ConversionSchema = CONV_ID ++ 
-		{ <Length> |-> 0.9143993 };
+		{ <Length> |-> 0.9143993, <Mass> |-> 0.453592338, <Temperature> |-> 5/9  };
 
 types
 	--@doc an BIS measurement system has an BIS conversion
@@ -842,12 +926,20 @@ types
 	Yard = BIS_MeasurementSystem
 	inv ms == ms.quantity.dim = DLENGTH;
 	
+	Pound = BIS_MeasurementSystem
+	inv ms == ms.quantity.dim = DMASS;
+	
+	Rankine = BIS_MeasurementSystem
+	inv ms == ms.quantity.dim = DTEMP;
+	
 	BISVelocity = BIS_MeasurementSystem
 	inv ms == ms.quantity.dim = DVELOCITY;
 	
 values
 	BIS_YARD    : Yard       = mk_MeasurementSystem(UNIT_LENGTH  , BIS, BIS_UNIT);
-    BIS_VELOCITY: BISVelocity= mk_MeasurementSystem(UNIT_VELOCITY, BIS, BIS_UNIT);
+	BIS_POUND   : Pound      = mk_MeasurementSystem(UNIT_MASS    , BIS, BIS_UNIT);
+	BIS_RANKINE : Rankine    = mk_MeasurementSystem(UNIT_TEMP    , BIS, BIS_UNIT);
+  BIS_VELOCITY: BISVelocity= mk_MeasurementSystem(UNIT_VELOCITY, BIS, BIS_UNIT);
 functions
 	
 	--@doc transform given measurement system to the British Imperial System
@@ -862,6 +954,9 @@ functions
 	
 	BIS_MILE: () -> Yard
 	BIS_MILE() == scaleMS(1760, BIS_YARD);
+
+	BIS_OUNCE: () -> Pound
+	BIS_OUNCE() == scaleMS(1/12, BIS_POUND);
 	
 	BIS_MILE_PER_HOUR: () -> BISVelocity
 	BIS_MILE_PER_HOUR() == ms_div(BIS_MILE(), hour(BIS, BIS_UNIT));
@@ -870,11 +965,42 @@ functions
 --@section Other measurement system of interest setup
 ------------------------------------------------------------------------------------
 values 
+	CGS_UNIT: UnitSystem = "CGS";
+	MHC_UNIT: UnitSystem = "MHC";
+	
+	
+	--@doc Centemetre-Gram-Second system;	
+	CGS: ConversionSchema = CONV_ID ++ { <Length> |-> mag(centi(METER)), <Mass> |-> mag(milli(KILOGRAM)) };
+
+	--@doc Miligram-Hour system;
+	MHC: ConversionSchema = CONV_ID ++ { <Mass> |-> mag(milli(milli(KILOGRAM))), <Time> |-> mag(hour(SI, SI_UNIT)), <Temperature> |-> -272.15 };
+	
 	WEEKS_PER_YEAR : nat1 = 52;
 	MONTHS_PER_YEAR: nat1 = 12;
 	DAYS_PER_YEAR  : nat1 = 365;
 
 types
+	CGS_MeasurementSystem = MeasurementSystem
+	inv ms == ms.schema = CGS and ms.unit = CGS_UNIT;
+	
+	Centimetre = CGS_MeasurementSystem
+	inv ms == ms.quantity.dim = DLENGTH;
+	
+	Gram = CGS_MeasurementSystem
+	inv ms == ms.quantity.dim = DMASS;
+	
+	MHC_MeasurementSystem = MeasurementSystem
+	inv ms == ms.schema = MHC and ms.unit = MHC_UNIT;
+	
+	Milligram = MHC_MeasurementSystem
+	inv ms == ms.quantity.dim = DMASS;
+	
+	Hour = MHC_MeasurementSystem
+	inv ms == ms.quantity.dim = DTIME;
+	
+	Celcius = MHC_MeasurementSystem
+	inv ms == ms.quantity.dim = DTEMP;
+		
 	WhichMonth = nat1
 	inv wm == wm <= MONTHS_PER_YEAR;
 	
@@ -882,6 +1008,14 @@ types
 	inv hmd == hmd in set {28,...,31};
     
 values 
+	CENTIMETRE: Centimetre = mk_MeasurementSystem(UNIT_LENGTH, CGS, CGS_UNIT);
+	GRAM      : Gram			 = mk_MeasurementSystem(UNIT_MASS  , CGS, CGS_UNIT);
+
+	MGRAM		: Milligram = mk_MeasurementSystem(UNIT_MASS, MHC, MHC_UNIT); --1mg=(1kg/1000)/1000
+	MHOUR   : Hour 			= mk_MeasurementSystem(UNIT_TIME, MHC, MHC_UNIT);--hour(MHC); --1hr
+	MCELCIUS: Celcius 	= mk_MeasurementSystem(UNIT_TEMP, MHC, MHC_UNIT); --1c = -272.15k
+	--MMHG  : IntQuantity   = UNIT_????; in KILOGRAM / (METER * SECOND**2)
+
 	DAYS_PER_MONTH : map WhichMonth to HowManyDays = {1|->31, 2|->28, 3|->31, 4|->30, 5|->31, 6|->30,
                                  			            7|->31, 8|->31, 9|->30, 10|->31, 11|->30, 12|->31};
 
@@ -1005,26 +1139,24 @@ functions
 
 	MEASUREMENT_SYSTEMS: () -> set1 of MeasurementSystem 
 	MEASUREMENT_SYSTEMS() ==
-			 {SI_ASTRONOMICAL(), SI_YARD(), SI_FOOT(), 
-			  SI_INCH(), SI_MILE(), SI_NAUTICAL_MILE(), 
+			 {SI_ASTRONOMICAL(), SI_TONNE(), SI_YARD(), SI_FOOT(), 
+			  SI_INCH(), SI_MILE(), SI_NAUTICAL_MILE(), SI_POUND(), SI_OUNCE(), SI_STONE(), 
 			  SI_KNOT(), SI_MPH(), SI_MPS(), SI_KPH(), BIS_FOOT(), 
-			  BIS_INCH(), BIS_MILE(), 
+			  BIS_INCH(), BIS_MILE(), BIS_OUNCE(), 
 			  BIS_MILE_PER_HOUR(), hDAY(), hWEEK(), hAVG_MONTH(), hYEAR(), wDAY(), wAVG_MONTH()
 			 };
 			 
 	CONVERSION_SCHEMAS : () -> set1 of ConversionSchema
-	CONVERSION_SCHEMAS() == {SI, BIS};
+	CONVERSION_SCHEMAS() == {SI, BIS, MHC, MDC, MWC};
 	
 	DIMENSION_VECTORS  : () -> set1 of DimensionVector  
 	DIMENSION_VECTORS() == 
-			 {DLENGTH, DTIME, 
+			 {DLENGTH, DMASS, DTIME, DTEMP, 
 				DFREQUENCY, DVELOCITY
 			 };
 			 
 	MAGNITUDES: () -> set1 of Magnitude
 	MAGNITUDES() == { 10, 20, 30, 40, 100, centi(100), kilo(10), pico(1), deci(10) };
-
-
 
 traces
 ------------------------------------------------------------------------------------
@@ -1153,7 +1285,43 @@ traces
 					rhs: Magnitude = mag(scaleMS(100000 / 9143993, BIS_YARD))
 				in   
 					refl_bool(approx_eq(lhs, rhs, ORDER_MAGNITUDE));
-     
+                        
+------------------------------------------------------------------------------------
+--@subsection CGS
+------------------------------------------------------------------------------------
+	--@doc 1KM in SI = 100000 centimetres in CGS
+	CGS_1: let 
+					 lhs: Magnitude = mag(ms_conv(/*SI, CGS, kilo(METER)*/kilo(METER), CGS)),
+					 rhs: Magnitude = mag(scaleMS(100000, CENTIMETRE))
+				 in
+					 refl_bool((lhs = 100000) and (lhs = rhs));
+
+	--@doc 100 cm in CGS = 1 metre in SI
+	CGS_2: refl_bool(mag(metrify(scaleMS(100, CENTIMETRE))) = mag(METER));
+
+------------------------------------------------------------------------------------
+--@subsection MHC, MDC, MWC
+------------------------------------------------------------------------------------
+	--@doc (in hours) week / avg_month = week / year * avg_month / year
+	MHC_1: let
+					 lhs: MeasurementSystem = hW2M(),
+					 rhs: MeasurementSystem = ms_div(ms_div(hWEEK(), hYEAR()), ms_div(hAVG_MONTH(), hYEAR()))
+					in
+						refl_bool(lhs = rhs);
+
+	--@doc 4 weeks = 0.9438202247191011 avg_month
+	MWC_1: let
+					 lhs: MeasurementSystem = weeks2months_wks(4),
+					 rhs: MeasurementSystem = scaleMS(0.9438202247191011, wAVG_MONTH())
+					in
+						refl_bool(lhs = rhs);
+	
+	--@doc 12 weeks = 84 days
+	MWC_2: let
+					 lhs: MeasurementSystem = scaleMS(12, MWEEK),
+					 rhs: MeasurementSystem = scaleMS(84, MDAY)
+					in
+						refl_bool(mag(ms_conv(lhs, MDC)) = mag(rhs)); 				
 ------------------------------------------------------------------------------------
 --@subsection Other; total 2132 tests
 ------------------------------------------------------------------------------------
