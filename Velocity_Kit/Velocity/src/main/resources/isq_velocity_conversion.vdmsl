@@ -1,0 +1,72 @@
+module UnitConversions
+
+imports
+  from ISQ import *
+
+exports
+  definitions
+
+definitions
+
+  public msToKmh: Velocity -> Velocity
+  msToKmh(v) == v / (1 m_s);
+
+  public msToMph: Velocity -> Velocity
+  msToMph(v) == v / (1.609344 m_s);
+
+  public kmhToMs: Velocity -> Velocity
+  kmhToMs(v) == v * (1 m_s);
+
+  public kmhToMph: Velocity -> Velocity
+  kmhToMph(v) == v / (1.609344 km_h);
+
+  public mphToMs: Velocity -> Velocity
+  mphToMs(v) == v * (1.609344 m_s);
+
+  public mphToKmh: Velocity -> Velocity
+  mphToKmh(v) == v * (1.609344 km_h);
+
+operations
+
+  public Test1: () ==> ()
+  Test1() ==
+    let conversion = 10.0 in
+    (
+      assert msToKmh(conversion m_s) = (36.0 km_h);
+      assert msToKmh(20.0 m_s) = (72.0 km_h);
+      assert msToKmh(30.0 m_s) = (108.0 km_h);
+      assert msToKmh(40.0 m_s) = (144.0 km_h);
+      assert msToKmh(50.0 m_s) = (180.0 km_h);
+
+      assert msToMph(conversion m_s) = (22.36936 mph);
+      assert msToMph(20.0 m_s) = (44.73792 mph);
+      assert msToMph(30.0 m_s) = (67.10688 mph);
+      assert msToMph(40.0 m_s) = (89.47584 mph);
+      assert msToMph(50.0 m_s) = (111.8448 mph);
+
+      assert kmhToMs(conversion km_h) = (10.0 m_s);
+      assert kmhToMs(72.0 km_h) = (20.0 m_s);
+      assert kmhToMs(108.0 km_h) = (30.0 m_s);
+      assert kmhToMs(144.0 km_h) = (40.0 m_s);
+      assert kmhToMs(180.0 km_h) = (50.0 m_s);
+
+      assert kmhToMph(conversion km_h) = (6.21371192 mph);
+      assert kmhToMph(72.0 km_h) = (44.73792 mph);
+      assert kmhToMph(108.0 km_h) = (67.10688 mph);
+      assert kmhToMph(144.0 km_h) = (89.47584 mph);
+      assert kmhToMph(180.0 km_h) = (111.8448 mph);
+
+      assert mphToMs(conversion mph) = (16.09344 m_s);
+      assert mphToMs(44.73792 mph) = (20.0 m_s);
+      assert mphToMs(67.10688 mph) = (30.0 m_s);
+      assert mphToMs(89.47584 mph) = (40.0 m_s);
+      assert mphToMs(111.8448 mph) = (50.0 m_s);
+
+      assert mphToKmh(conversion mph) = (36.0 km_h);
+      assert mphToKmh(44.73792 mph) = (72.0 km_h);
+      assert mphToKmh(67.10688 mph) = (108.0 km_h);
+      assert mphToKmh(89.47584 mph) = (144.0 km_h);
+      assert mphToKmh(111.8448 mph) = (180.0 km_h);
+    );
+
+end UnitConversions

@@ -1,0 +1,22 @@
+
+default Velocity
+
+-- Define a basic velocity in terms of meters per second
+p let V1 = ms_div(METER, SECOND) in mk_(is_Velocity(V1), si_dim_view(V1))
+= mk_( false, " m / s ")
+
+-- Define velocities based on the identified units
+p let V_KNOT = SI_KNOT() in mk_(is_Velocity(V_KNOT), si_dim_view(V_KNOT))
+p let V_MPH = SI_MPH() in mk_(is_Velocity(V_MPH), si_dim_view(V_MPH))
+p let V_MPS = SI_MPS() in mk_(is_Velocity(V_MPS), si_dim_view(V_MPS))
+p let V_KPH = SI_KPH() in mk_(is_Velocity(V_KPH), si_dim_view(V_KPH))
+p let V_BIS_MPH = BIS_MILE_PER_HOUR() in mk_(is_Velocity(V_BIS_MPH), si_dim_view(V_BIS_MPH))
+
+-- Compare two velocities: SI_MPH and SI_KPH
+p let is_equal_MPH_KPH = V_MPH = V_KPH in is_equal_MPH_KPH
+
+-- Define the speed of light
+p let V_LIGHT = SPEED_OF_LIGHT in mk_(is_Velocity(V_LIGHT), si_dim_view(V_LIGHT))
+
+-- Convert 1 MPH to KPH (assuming there's a conversion function available)
+-- p let V_MPH_in_KPH = convert_MPH_to_KPH(V_MPH) in mk_(is_Velocity(V_MPH_in_KPH), si_dim_view(V_MPH_in_KPH))
