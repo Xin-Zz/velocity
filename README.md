@@ -1,28 +1,14 @@
-# VDM_Toolkit
-Repository of various VDM-SL developments.
+# VELOCITY_kit
+Repository of VDM-SL velocity library, inherited and modified specifically from VDM_Toolkit ISQ Library by Dr Leo Freitas (https://github.com/leouk/VDM_Toolkit)
+This work is insp
 
-## experiments
-
-* Colleciton of interesting VDM-SL experiments. 
-* Collection of manually translated VDM-SL to Isabelle/HOL. 
 
 ## issues 
-Collection of minimal examples highlighting tool issues/errors. These were all reported to and fixed by corresponding tool builders.
+Translating vdmsl to Isabelle/Hol is the biggest challenge in order to successfully do the analysis.
 
-### CG
-Overture code generator issues. 
-
-### TC
-Overture / VDMJ type checker (and occasionally parsing) issues.
-
-### VSCode 
-VSCode related issues. 
 
 ## plugins 
-
-* VDM toolkit annotations
-* VDM-SL to Isabelle/HOL plugins
 * VDM-SL libraries
 
-## scripts 
-Collection of VDMJ scripts useful to make it seemless across updates. Works for Linux/Mac (**TODO: adapt for Windows!**). 
+## purpose and approach of the work
+Resources and Test class are mainly from Dr Leo Freitas (2020-2022). A new vdmsl file named as VELOCITY.vdmsl was created and inspired/supervised by Dr Leo Freitas to analyse his dedicated work on ISQ Library. Tiny modification on test class has been made in order to obtain a sound result.
