@@ -1,0 +1,7 @@
+digraph G {
+	VELOCITY -> Support1;
+	VELOCITY -> VDMUtil;
+	Support1 -> VDMUtil;
+	Support1 -> MATH;
+	CSV -> IO;
+}
